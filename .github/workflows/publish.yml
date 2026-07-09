@@ -3,7 +3,9 @@ on:
   push:
     branches: [main]
   repository_dispatch:
-    types: [docs-updated]   # service repos can ping this after their docs change
+    types: [docs-updated]   # sent by notify-docs-hub.yml in service repos on docs changes
+  schedule:
+    - cron: "0 5 * * *"     # daily rebuild at 05:00 UTC, safety net for missed dispatches
   workflow_dispatch:
 permissions:
   contents: read
