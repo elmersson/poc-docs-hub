@@ -26,7 +26,10 @@ def main() -> None:
     hub = Path(__file__).resolve().parent.parent
     target_root = hub / "docs" / "services"
     if target_root.exists():
-        shutil.rmtree(target_root)
+        try:
+            shutil.rmtree(target_root)
+        except PermissionError:
+            print("WARNING: could not clear docs/services, overwriting in place")
 
     missing = []
     for repo, slug in REPOS.items():
@@ -34,7 +37,7 @@ def main() -> None:
         if not src.is_dir():
             missing.append(repo)
             continue
-        shutil.copytree(src, target_root / slug)
+        shutil.copytree(src, target_root / slug, dirs_exist_ok=True)
         print(f"aggregated {repo} -> docs/services/{slug}")
 
     if missing:
