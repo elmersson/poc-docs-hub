@@ -1,0 +1,41 @@
+name: publish-docs
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [docs-updated]   # service repos can ping this after their docs change
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out service repos
+        env:
+          GH_TOKEN: ${{ secrets.REPO_READ_TOKEN }}   # fine-grained PAT, contents:read on poc-* repos
+        run: |
+          mkdir -p checkout
+          for repo in poc-shop-frontend poc-orders-service poc-payments-service poc-inventory-service poc-shared-contracts; do
+            gh repo clone "${{ github.repository_owner }}/$repo" "checkout/$repo" -- --depth 1
+          done
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build site
+        run: |
+          pip install -r requirements.txt
+          python scripts/aggregate.py --source ./checkout
+          python scripts/generate_llms_txt.py --base-url "https://${{ github.repository_owner }}.github.io/poc-docs-hub"
+          mkdocs build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

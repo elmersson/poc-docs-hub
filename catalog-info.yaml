@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: docs-hub
+  description: Aggregated documentation site, llms.txt generator and docs MCP server for demo-shop
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: documentation
+  lifecycle: production
+  owner: team-platform
+  system: demo-shop
+  dependsOn:
+    - component:shop-frontend
+    - component:orders-service
+    - component:payments-service
+    - component:inventory-service
+    - component:shared-contracts

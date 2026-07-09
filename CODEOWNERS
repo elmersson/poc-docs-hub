@@ -1,0 +1,5 @@
+# Org-level docs and tooling are owned by team-platform
+docs/**      @demo-shop/team-platform
+scripts/**   @demo-shop/team-platform
+mcp/**       @demo-shop/team-platform
+mkdocs.yml   @demo-shop/team-platform

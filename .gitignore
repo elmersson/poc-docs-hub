@@ -1,0 +1,7 @@
+site/
+docs/services/
+docs/llms.txt
+docs/llms-full.txt
+node_modules/
+mcp/node_modules/
+__pycache__/
