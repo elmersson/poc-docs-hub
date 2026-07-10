@@ -78,6 +78,7 @@ def main():
             inject_meta_banner(page, repo, page.relative_to(target).as_posix(), args.github_owner)
         print("aggregated " + repo + " -> docs/teams/" + team + "/" + slug)
 
+
     if missing:
         print("WARNING: missing repos: " + ", ".join(missing))
 
