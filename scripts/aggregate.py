@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Aggregate docs/ from sibling service repos into docs/services/, injecting an
-ownership/freshness banner (with edit-at-source link) into each page.
+"""Aggregate docs/ from sibling service repos into docs/teams/<team>/<service>/,
+injecting an ownership/freshness banner (with edit-at-source link) into each page.
 
 Local:  python scripts/aggregate.py --source .. --github-owner elmersson
 CI:     python scripts/aggregate.py --source ./checkout --github-owner OWNER
@@ -10,6 +10,8 @@ import re
 import shutil
 from pathlib import Path
 
+import yaml
+
 REPOS = {
     "poc-shop-frontend": "shop-frontend",
     "poc-orders-service": "orders-service",
@@ -17,6 +19,13 @@ REPOS = {
     "poc-inventory-service": "inventory-service",
     "poc-shared-contracts": "shared-contracts",
 }
+
+def load_owner(repo_dir):
+    f = repo_dir / "catalog-info.yaml"
+    if f.is_file():
+        data = yaml.safe_load(f.read_text(encoding="utf-8"))
+        return (data.get("spec", {}) or {}).get("owner", "unowned")
+    return "unowned"
 
 def inject_meta_banner(md, repo, rel_in_repo, gh_owner):
     text = md.read_text(encoding="utf-8")
@@ -47,23 +56,27 @@ def main():
     args = parser.parse_args()
 
     hub = Path(__file__).resolve().parent.parent
-    target_root = hub / "docs" / "services"
-    if target_root.exists():
-        try:
-            shutil.rmtree(target_root)
-        except PermissionError:
-            print("WARNING: could not clear docs/services, overwriting in place")
+    for legacy in ("services", "teams"):
+        d = hub / "docs" / legacy
+        if d.exists():
+            try:
+                shutil.rmtree(d)
+            except PermissionError:
+                print("WARNING: could not clear docs/" + legacy + ", overwriting in place")
 
     missing = []
     for repo, slug in REPOS.items():
-        src = Path(args.source).resolve() / repo / "docs"
+        repo_dir = Path(args.source).resolve() / repo
+        src = repo_dir / "docs"
         if not src.is_dir():
             missing.append(repo)
             continue
-        shutil.copytree(src, target_root / slug, dirs_exist_ok=True)
-        for page in (target_root / slug).rglob("*.md"):
-            inject_meta_banner(page, repo, page.relative_to(target_root / slug).as_posix(), args.github_owner)
-        print("aggregated " + repo + " -> docs/services/" + slug)
+        team = load_owner(repo_dir)
+        target = hub / "docs" / "teams" / team / slug
+        shutil.copytree(src, target, dirs_exist_ok=True)
+        for page in target.rglob("*.md"):
+            inject_meta_banner(page, repo, page.relative_to(target).as_posix(), args.github_owner)
+        print("aggregated " + repo + " -> docs/teams/" + team + "/" + slug)
 
     if missing:
         print("WARNING: missing repos (skipped): " + ", ".join(missing))

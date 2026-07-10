@@ -38,17 +38,17 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
 </div>
 
-## Services
+## Teams and their services
 
-Aggregated from each repo under `services/`. Each page shows its owning team and last review date in the front-matter.
+Docs are organized by owning team under `teams/`. Each team page lists its services; each service page shows ownership, freshness and relations.
 
-| Service | Team | Repo |
-|---|---|---|
-| shop-frontend | team-frontend | poc-shop-frontend |
-| orders-service | team-checkout | poc-orders-service |
-| payments-service | team-payments | poc-payments-service |
-| inventory-service | team-fulfillment | poc-inventory-service |
-| shared-contracts | team-platform | poc-shared-contracts |
+| Team | Owns |
+|---|---|
+| [team-frontend](teams/team-frontend/index.md) | shop-frontend |
+| [team-checkout](teams/team-checkout/index.md) | orders-service |
+| [team-payments](teams/team-payments/index.md) | payments-service |
+| [team-fulfillment](teams/team-fulfillment/index.md) | inventory-service |
+| [team-platform](teams/team-platform/index.md) | shared-contracts, docs-hub |
 
 ## How this site stays fresh
 
