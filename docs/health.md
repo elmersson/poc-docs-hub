@@ -16,7 +16,7 @@ Generated 2026-07-10. Freshness by `last_reviewed` front-matter: fresh under 90 
 | team-frontend | 29 | 29 | 0 | 0 |
 | team-fulfillment | 13 | 13 | 0 | 0 |
 | team-payments | 13 | 13 | 0 | 0 |
-| team-platform | 17 | 17 | 0 | 0 |
+| team-platform | 19 | 19 | 0 | 0 |
 
 ## Pages past the review SLA
 

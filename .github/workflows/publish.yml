@@ -34,7 +34,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           python scripts/aggregate.py --source ./checkout --github-owner "${{ github.repository_owner }}"
-          python scripts/catalog.py --source ./checkout
+          python scripts/catalog.py --source ./checkout --github-owner "${{ github.repository_owner }}"
           python scripts/health.py
           python scripts/generate_llms_txt.py --base-url "https://${{ github.repository_owner }}.github.io/poc-docs-hub"
           mkdocs build

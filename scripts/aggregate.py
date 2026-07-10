@@ -62,7 +62,7 @@ def main():
             try:
                 shutil.rmtree(d)
             except PermissionError:
-                print("WARNING: could not clear docs/" + legacy + ", overwriting in place")
+                print("WARNING: could not clear docs/" + legacy)
 
     missing = []
     for repo, slug in REPOS.items():
@@ -79,7 +79,7 @@ def main():
         print("aggregated " + repo + " -> docs/teams/" + team + "/" + slug)
 
     if missing:
-        print("WARNING: missing repos (skipped): " + ", ".join(missing))
+        print("WARNING: missing repos: " + ", ".join(missing))
 
 if __name__ == "__main__":
     main()

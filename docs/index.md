@@ -16,6 +16,10 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
     The system map: how services couple, the order flow, change impact rules.
 
+- **[Service explorer](services.md)**
+
+    Card view of every service: team, tags, docs and GitHub links.
+
 - **[System catalog](catalog.md)**
 
     Every component with its owner, dependencies, and API consumers. Generated, never stale.

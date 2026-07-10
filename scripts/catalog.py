@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the system catalog and per-team landing pages from catalog-info.yaml,
-and inject relation panels into each aggregated service page.
+"""Generate system catalog, team pages, service explorer and relation panels
+from catalog-info.yaml files.
 
-Run AFTER aggregate.py:  python scripts/catalog.py --source ..
-Produces docs/catalog.md, docs/teams/<team>/index.md, and appends a Relations
-section to docs/teams/<team>/<slug>/index.md.
+Run AFTER aggregate.py:
+    python scripts/catalog.py --source .. --github-owner elmersson
+Produces docs/catalog.md, docs/services.md, docs/teams/<team>/index.md, and
+injects tags + a Relations section into docs/teams/<team>/<slug>/index.md.
 """
 import argparse
 from datetime import date
@@ -20,8 +21,9 @@ REPOS = {
     "poc-shared-contracts": "shared-contracts",
 }
 
-FM = ["---", "owner: team-platform", "system: demo-shop",
-      "last_reviewed: " + date.today().isoformat(), "---", ""]
+def fm():
+    return ["---", "owner: team-platform", "system: demo-shop",
+            "last_reviewed: " + date.today().isoformat(), "---", ""]
 
 def load_components(source):
     comps = {}
@@ -35,6 +37,7 @@ def load_components(source):
             "slug": slug,
             "repo": repo,
             "description": data["metadata"].get("description", ""),
+            "tags": data["metadata"].get("tags", []) or [],
             "type": spec.get("type", ""),
             "owner": spec.get("owner", "unowned"),
             "depends_on": [d.split(":", 1)[1] for d in spec.get("dependsOn", []) or []],
@@ -52,7 +55,6 @@ def link_from_root(comps, name):
     return "[" + name + "](" + path_of(comps[name]) + ")"
 
 def link_from_service(comps, name):
-    # service pages live at docs/teams/<team>/<slug>/index.md
     if name not in comps:
         return "`" + name + "`"
     c = comps[name]
@@ -61,6 +63,7 @@ def link_from_service(comps, name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", default="..")
+    parser.add_argument("--github-owner", default="")
     args = parser.parse_args()
     source = Path(args.source).resolve()
     hub = Path(__file__).resolve().parent.parent
@@ -77,8 +80,8 @@ def main():
             depended_by.setdefault(dep, []).append(name)
 
     # ---- catalog.md ----
-    out = FM + ["# System catalog", "",
-        "Generated from each repo's `catalog-info.yaml`. This page, not a wiki, is the source of truth for ownership and coupling.", "",
+    out = fm() + ["# System catalog", "",
+        "Generated from each repo's catalog-info.yaml. This page, not a wiki, is the source of truth for ownership and coupling.", "",
         "## Components", "",
         "| Component | Type | Team | Depends on | Provides | Consumes |", "|---|---|---|---|---|---|"]
     for name in sorted(comps):
@@ -88,7 +91,6 @@ def main():
             + (", ".join(link_from_root(comps, d) for d in c["depends_on"]) or "-") + " | "
             + (", ".join("`" + a + "`" for a in c["provides"]) or "-") + " | "
             + (", ".join("`" + a + "`" for a in c["consumes"]) or "-") + " |")
-
     out += ["", "## Dependency graph", "", "```mermaid", "graph LR"]
     for name, c in comps.items():
         out.append("  " + name.replace("-", "_") + '["' + name + "<br/><i>" + c["owner"] + '</i>"]')
@@ -116,10 +118,44 @@ def main():
         for name in sorted(members):
             c = comps[name]
             page.append("| [" + name + "](" + c["slug"] + "/index.md) | " + c["type"] + " | " + c["description"] + " |")
-        page += ["", "[System catalog](../../catalog.md) · [Docs health](../../health.md)"]
+        page += ["", "[System catalog](../../catalog.md) · [Service explorer](../../services.md) · [Docs health](../../health.md)"]
         d = hub / "docs" / "teams" / team
         d.mkdir(parents=True, exist_ok=True)
         (d / "index.md").write_text("\n".join(page) + "\n", encoding="utf-8")
+
+    # ---- tags into service index front-matter ----
+    for name, c in comps.items():
+        idx = hub / "docs" / "teams" / c["owner"] / c["slug"] / "index.md"
+        if not idx.is_file() or not c["tags"]:
+            continue
+        text = idx.read_text(encoding="utf-8")
+        if "\ntags:" in text[:300]:
+            continue
+        text = text.replace("---\n", "---\ntags: [" + ", ".join(c["tags"]) + "]\n", 1)
+        idx.write_text(text, encoding="utf-8")
+
+    # ---- service explorer ----
+    exp = fm() + ["# Service explorer", "",
+        "Every component in demo-shop. Use the header search for full-text search across all docs, or browse by [tag](tags.md).", "",
+        '<div class="grid cards" markdown>', ""]
+    for name in sorted(comps):
+        c = comps[name]
+        exp.append("- **[" + name + "](" + path_of(c) + ")** · `" + c["type"] + "`")
+        exp.append("")
+        exp.append("    " + (c["description"] or "No description."))
+        exp.append("")
+        line = "    Team: [" + c["owner"] + "](teams/" + c["owner"] + "/index.md)"
+        if c["tags"]:
+            line += " · " + " ".join("`#" + t + "`" for t in c["tags"])
+        exp.append(line)
+        exp.append("")
+        links = "    [:material-file-document: Docs](" + path_of(c) + ")"
+        if args.github_owner:
+            links += " · [:material-github: GitHub](https://github.com/" + args.github_owner + "/" + c["repo"] + ")"
+        exp.append(links)
+        exp.append("")
+    exp.append("</div>")
+    (hub / "docs" / "services.md").write_text("\n".join(exp) + "\n", encoding="utf-8")
 
     # ---- relations panels ----
     injected = 0
@@ -130,8 +166,11 @@ def main():
         text = idx.read_text(encoding="utf-8")
         if "## Relations" in text:
             continue
+        repo_ref = "`" + c["repo"] + "`"
+        if args.github_owner:
+            repo_ref = "[" + c["repo"] + "](https://github.com/" + args.github_owner + "/" + c["repo"] + ")"
         panel = ["", "## Relations", "",
-                 "Owner: **[" + c["owner"] + "](../index.md)** · Type: " + c["type"] + " · Repo: `" + c["repo"] + "`", ""]
+                 "Owner: **[" + c["owner"] + "](../index.md)** · Type: " + c["type"] + " · Repo: " + repo_ref, ""]
         if c["depends_on"]:
             panel.append("- Depends on: " + ", ".join(link_from_service(comps, d) for d in c["depends_on"]))
         if depended_by.get(name):
@@ -146,7 +185,7 @@ def main():
         idx.write_text(text.rstrip() + "\n" + "\n".join(panel) + "\n", encoding="utf-8")
         injected += 1
 
-    print("wrote catalog.md, " + str(len(teams)) + " team pages, injected relations into " + str(injected) + " service pages")
+    print("wrote catalog.md + services.md, " + str(len(teams)) + " team pages, relations into " + str(injected) + " pages")
 
 if __name__ == "__main__":
     main()
