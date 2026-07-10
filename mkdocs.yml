@@ -4,6 +4,9 @@ theme:
   name: material
   icon:
     logo: material/book-open-page-variant
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
     - navigation.instant
     - navigation.tracking
@@ -17,15 +20,11 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
@@ -45,7 +44,8 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+extra_css:
+  - stylesheets/qred.css
 plugins:
   - search
-# nav intentionally omitted: MkDocs auto-generates it from the docs/ tree,
-# so aggregated service docs appear without editing this file.
+# nav intentionally omitted: MkDocs auto-generates it from the docs/ tree.
