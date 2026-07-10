@@ -17,7 +17,7 @@ Each repo has a `docs/` folder following Diátaxis:
 - `adr/`: architecture decision records. Append-only; supersede, never edit accepted records.
 - `index.md`: what the service does, who owns it, changelog.
 
-The hub itself carries generated org-level pages you never hand-edit: `catalog.md`, the system catalog, and a per-team landing page at `teams/<team>/index.md` — both built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects a **Relations** section into each aggregated service `index.md`, so ownership and coupling on those pages come from the pipeline, not the source repo.
+The hub itself carries generated org-level pages you never hand-edit: `catalog.md` (the system catalog) and `services.md` (the service explorer), both built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects each service's `tags` and a **Relations** section into every aggregated service `index.md`, so tags, ownership, and coupling on those pages come from the pipeline, not the source repo.
 
 Aggregation (`scripts/aggregate.py`) copies each repo's `docs/` into `teams/<team>/<service>/` (grouped by the owning team from `catalog-info.yaml`) and injects an ownership/freshness banner below the top heading of every aggregated page: the page's `owner`, its `last_reviewed` date, and an **edit at source** link back to the page in its home repo. The link is built from `--github-owner`; without that flag the banner still shows owner and review date, but omits the link. Edit those pages at the source, never here.
 
