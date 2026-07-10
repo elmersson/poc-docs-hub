@@ -1,5 +1,8 @@
 site/
 docs/services/
+docs/teams/
+docs/health.md
+docs/catalog.md
 docs/llms.txt
 docs/llms-full.txt
 node_modules/

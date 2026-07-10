@@ -12,11 +12,11 @@ Generated from each repo's `catalog-info.yaml`. This page, not a wiki, is the so
 
 | Component | Type | Team | Depends on | Provides | Consumes |
 |---|---|---|---|---|---|
-| [inventory-service](services/inventory-service/index.md) | service | team-fulfillment | [shared-contracts](services/shared-contracts/index.md) | `inventory-api` | - |
-| [orders-service](services/orders-service/index.md) | service | team-checkout | [payments-service](services/payments-service/index.md), [inventory-service](services/inventory-service/index.md), [shared-contracts](services/shared-contracts/index.md) | `orders-api` | `payments-api`, `inventory-api` |
-| [payments-service](services/payments-service/index.md) | service | team-payments | [shared-contracts](services/shared-contracts/index.md) | `payments-api` | - |
-| [shared-contracts](services/shared-contracts/index.md) | library | team-platform | - | - | - |
-| [shop-frontend](services/shop-frontend/index.md) | website | team-frontend | [orders-service](services/orders-service/index.md), [shared-contracts](services/shared-contracts/index.md) | - | `orders-api` |
+| [inventory-service](teams/team-fulfillment/inventory-service/index.md) | service | [team-fulfillment](teams/team-fulfillment/index.md) | [shared-contracts](teams/team-platform/shared-contracts/index.md) | `inventory-api` | - |
+| [orders-service](teams/team-checkout/orders-service/index.md) | service | [team-checkout](teams/team-checkout/index.md) | [payments-service](teams/team-payments/payments-service/index.md), [inventory-service](teams/team-fulfillment/inventory-service/index.md), [shared-contracts](teams/team-platform/shared-contracts/index.md) | `orders-api` | `payments-api`, `inventory-api` |
+| [payments-service](teams/team-payments/payments-service/index.md) | service | [team-payments](teams/team-payments/index.md) | [shared-contracts](teams/team-platform/shared-contracts/index.md) | `payments-api` | - |
+| [shared-contracts](teams/team-platform/shared-contracts/index.md) | library | [team-platform](teams/team-platform/index.md) | - | - | - |
+| [shop-frontend](teams/team-frontend/shop-frontend/index.md) | website | [team-frontend](teams/team-frontend/index.md) | [orders-service](teams/team-checkout/orders-service/index.md), [shared-contracts](teams/team-platform/shared-contracts/index.md) | - | `orders-api` |
 
 ## Dependency graph
 
@@ -38,6 +38,6 @@ graph LR
 
 ## APIs and their consumers
 
-- `inventory-api`: provided by [inventory-service](services/inventory-service/index.md); consumed by [orders-service](services/orders-service/index.md)
-- `orders-api`: provided by [orders-service](services/orders-service/index.md); consumed by [shop-frontend](services/shop-frontend/index.md)
-- `payments-api`: provided by [payments-service](services/payments-service/index.md); consumed by [orders-service](services/orders-service/index.md)
+- `inventory-api`: provided by [inventory-service](teams/team-fulfillment/inventory-service/index.md); consumed by [orders-service](teams/team-checkout/orders-service/index.md)
+- `orders-api`: provided by [orders-service](teams/team-checkout/orders-service/index.md); consumed by [shop-frontend](teams/team-frontend/shop-frontend/index.md)
+- `payments-api`: provided by [payments-service](teams/team-payments/payments-service/index.md); consumed by [orders-service](teams/team-checkout/orders-service/index.md)

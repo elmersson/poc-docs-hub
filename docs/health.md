@@ -12,11 +12,11 @@ Generated 2026-07-10. Freshness by `last_reviewed` front-matter: fresh under 90 
 
 | Team | Pages | Fresh | Aging | Stale |
 |---|---|---|---|---|
-| team-checkout | 6 | 6 | 0 | 0 |
-| team-frontend | 14 | 14 | 0 | 0 |
-| team-fulfillment | 6 | 6 | 0 | 0 |
-| team-payments | 6 | 6 | 0 | 0 |
-| team-platform | 11 | 11 | 0 | 0 |
+| team-checkout | 13 | 13 | 0 | 0 |
+| team-frontend | 29 | 29 | 0 | 0 |
+| team-fulfillment | 13 | 13 | 0 | 0 |
+| team-payments | 13 | 13 | 0 | 0 |
+| team-platform | 17 | 17 | 0 | 0 |
 
 ## Pages past the review SLA
 
