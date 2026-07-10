@@ -1,7 +1,7 @@
 ---
 owner: team-platform
 system: demo-shop
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-10
 ---
 
 # Writing docs
@@ -16,6 +16,8 @@ Each repo has a `docs/` folder following Diátaxis:
 - `reference/`: neutral facts, primarily `api.md`. Must match the code exactly.
 - `adr/`: architecture decision records. Append-only; supersede, never edit accepted records.
 - `index.md`: what the service does, who owns it, changelog.
+
+The hub itself carries generated org-level pages you never hand-edit: `catalog.md`, the system catalog built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects a **Relations** section into each aggregated service `index.md`, so ownership and coupling on those pages come from the pipeline, not the source repo.
 
 ## Front-matter (required on every page)
 
