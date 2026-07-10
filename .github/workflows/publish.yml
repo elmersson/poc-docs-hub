@@ -31,11 +31,14 @@ jobs:
         with:
           python-version: "3.12"
       - name: Build site
+        env:
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}   # optional; embed.py skips without it
         run: |
           pip install -r requirements.txt
           python scripts/aggregate.py --source ./checkout --github-owner "${{ github.repository_owner }}"
           python scripts/catalog.py --source ./checkout --github-owner "${{ github.repository_owner }}"
           python scripts/crosslink.py --source ./checkout
+          python scripts/embed.py
           python scripts/health.py
           python scripts/generate_llms_txt.py --base-url "https://${{ github.repository_owner }}.github.io/poc-docs-hub"
           mkdocs build

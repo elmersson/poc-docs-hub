@@ -105,6 +105,15 @@ def main():
         out.append("- `" + api + "`: provided by " + provs + "; consumed by " + cons)
     (hub / "docs" / "catalog.md").write_text("\n".join(out) + "\n", encoding="utf-8")
 
+    # ---- catalog.json (consumed by the docs MCP server) ----
+    import json
+    (hub / "docs" / "catalog.json").write_text(json.dumps({
+        "components": comps,
+        "api_providers": api_providers,
+        "api_consumers": api_consumers,
+        "depended_on_by": depended_by,
+    }, indent=2), encoding="utf-8")
+
     # ---- team landing pages ----
     teams = {}
     for name, c in comps.items():
@@ -185,7 +194,7 @@ def main():
         idx.write_text(text.rstrip() + "\n" + "\n".join(panel) + "\n", encoding="utf-8")
         injected += 1
 
-    print("wrote catalog.md + services.md, " + str(len(teams)) + " team pages, relations into " + str(injected) + " pages")
+    print("wrote catalog.md + services.md + catalog.json, " + str(len(teams)) + " team pages, relations into " + str(injected) + " pages")
 
 if __name__ == "__main__":
     main()
