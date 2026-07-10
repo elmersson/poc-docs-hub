@@ -6,7 +6,7 @@ last_reviewed: 2026-07-10
 
 # System catalog
 
-Generated from each repo's `catalog-info.yaml`. This page, not a wiki, is the source of truth for ownership and coupling.
+Generated from each repo's catalog-info.yaml. This page, not a wiki, is the source of truth for ownership and coupling.
 
 ## Components
 
