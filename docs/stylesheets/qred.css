@@ -1,0 +1,94 @@
+/* Qred-inspired theme for the demo-shop docs hub.
+   Tokens borrowed from the oneqred design system (colors.ts):
+   primary 1000 #002d30 · 900 #005A4A · 800 #008E63 · 700 #29BE88
+   greige 200 #F3F3EE · 150 #F8F9F7 · yellow 200 #FBFFE1 */
+
+:root {
+  --qred-ink: #002d30;
+  --qred-deep: #005A4A;
+  --qred-green: #008E63;
+  --qred-bright: #29BE88;
+  --qred-greige: #F3F3EE;
+  --qred-greige-light: #F8F9F7;
+}
+
+/* ---------- light scheme ---------- */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--qred-ink);
+  --md-primary-fg-color--light: var(--qred-deep);
+  --md-primary-fg-color--dark: #001f21;
+  --md-accent-fg-color: var(--qred-green);
+  --md-typeset-a-color: var(--qred-deep);
+  --md-default-bg-color: var(--qred-greige-light);
+  --md-code-bg-color: var(--qred-greige);
+  --md-footer-bg-color: var(--qred-ink);
+  --md-footer-bg-color--dark: #001f21;
+}
+
+/* ---------- dark scheme ---------- */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--qred-ink);
+  --md-accent-fg-color: var(--qred-bright);
+  --md-typeset-a-color: var(--qred-bright);
+  --md-default-bg-color: #06211f;
+  --md-default-fg-color--light: #d7e5e0;
+  --md-code-bg-color: #0b2f2c;
+  --md-footer-bg-color: #001f21;
+}
+
+/* header: deep ink green like the Qred app chrome */
+.md-header, .md-tabs { background-color: var(--qred-ink); }
+
+/* content cards and tables: soft corners, greige surfaces */
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border-radius: 12px;
+  border: 1px solid #e0e2d8;
+  background: #ffffff;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
+  background: #0b2f2c;
+  border-color: #14423e;
+}
+.md-typeset .grid.cards > ul > li:hover {
+  border-color: var(--qred-bright);
+  box-shadow: 0 4px 14px rgba(0, 45, 48, 0.12);
+}
+
+.md-typeset table:not([class]) {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 45, 48, 0.08);
+}
+.md-typeset table:not([class]) th {
+  background: var(--qred-ink);
+  color: #ffffff;
+}
+
+/* ownership banner under H1s */
+.md-typeset h1 + p small,
+.md-typeset h1 + small {
+  display: inline-block;
+  background: var(--qred-greige);
+  border: 1px solid #e0e2d8;
+  border-radius: 999px;
+  padding: 0.15rem 0.7rem;
+  color: var(--qred-ink);
+}
+[data-md-color-scheme="slate"] .md-typeset h1 + p small,
+[data-md-color-scheme="slate"] .md-typeset h1 + small {
+  background: #0b2f2c;
+  border-color: #14423e;
+  color: #d7e5e0;
+}
+
+/* buttons / search highlight accent */
+.md-typeset .md-button--primary {
+  background-color: var(--qred-green);
+  border-color: var(--qred-green);
+  border-radius: 999px;
+}
+
+/* code blocks: slightly rounded, calm */
+.md-typeset pre > code { border-radius: 10px; }
