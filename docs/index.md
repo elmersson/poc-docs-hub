@@ -10,10 +10,33 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
 ## Start here
 
-- [Architecture overview](architecture.md): the system map and how services couple.
-- [Event catalog](event-catalog.md): every event, its schema version, producers and consumers.
-- [Onboarding](onboarding.md): new to the team? Day-one path.
-- [Writing docs](docs-guide.md): where docs live, the Diátaxis structure, ownership rules.
+<div class="grid cards" markdown>
+
+- **[Architecture overview](architecture.md)**
+
+    The system map: how services couple, the order flow, change impact rules.
+
+- **[System catalog](catalog.md)**
+
+    Every component with its owner, dependencies, and API consumers. Generated, never stale.
+
+- **[Event catalog](event-catalog.md)**
+
+    Every event, schema version, producers and consumers.
+
+- **[Docs health](health.md)**
+
+    Per-team freshness scorecard and pages past the review SLA.
+
+- **[Onboarding](onboarding.md)**
+
+    New to the team? The day-one path.
+
+- **[Writing docs](docs-guide.md)**
+
+    Where docs live, the Diátaxis structure, ownership rules.
+
+</div>
 
 ## Services
 

@@ -65,7 +65,6 @@ def main() -> None:
         for dep in c["depends_on"]:
             depended_by.setdefault(dep, []).append(name)
 
-    # ---- docs/catalog.md ----
     out = [
         "---", "owner: team-platform", "system: demo-shop",
         f"last_reviewed: {date.today().isoformat()}", "---", "",
@@ -85,8 +84,7 @@ def main() -> None:
 
     out += ["", "## Dependency graph", "", "```mermaid", "graph LR"]
     for name, c in comps.items():
-        label = f"{name}<br/><i>{c['owner']}</i>"
-        out.append(f'  {name.replace("-", "_")}["{label}"]')
+        out.append(f'  {name.replace("-", "_")}["{name}<br/><i>{c["owner"]}</i>"]')
     for name, c in comps.items():
         for dep in c["depends_on"]:
             if dep in comps:
@@ -101,7 +99,6 @@ def main() -> None:
 
     (hub / "docs" / "catalog.md").write_text("\n".join(out) + "\n", encoding="utf-8")
 
-    # ---- inject Relations panel into each service index ----
     injected = 0
     for name, c in comps.items():
         idx = hub / "docs" / "services" / c["slug"] / "index.md"
