@@ -9,8 +9,10 @@ Clone all poc-* repos side by side, then:
 ```bash
 pip install -r requirements.txt
 python scripts/aggregate.py --source ..
+python scripts/catalog.py --source ..     # system catalog + relations panels
+python scripts/health.py                  # docs health dashboard
 python scripts/generate_llms_txt.py
-mkdocs serve   # http://localhost:8000
+python -m mkdocs serve   # http://localhost:8000
 ```
 
 ## Claude integration
