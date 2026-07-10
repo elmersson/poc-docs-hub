@@ -3,6 +3,9 @@ docs/services/
 docs/teams/
 docs/health.md
 docs/catalog.md
+docs/catalog.json
+docs/embeddings.json
+docs/services.md
 docs/llms.txt
 docs/llms-full.txt
 node_modules/

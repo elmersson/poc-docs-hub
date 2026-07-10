@@ -32,6 +32,10 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
     Per-team freshness scorecard and pages past the review SLA.
 
+- **[Docs MCP server](mcp.md)**
+
+    How Claude searches these docs and queries the catalog, and how to connect it.
+
 - **[Onboarding](onboarding.md)**
 
     New to the team? The day-one path.
