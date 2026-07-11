@@ -28,8 +28,11 @@ if _repos_file.is_file():
 def load_targets(source):
     """name/repo -> (owner, slug)"""
     targets = {}
+    hub_self = Path(__file__).resolve().parent.parent / "catalog-info.yaml"
     for repo, slug in REPOS.items():
         f = source / repo / "catalog-info.yaml"
+        if not f.is_file() and slug == "docs-hub":
+            f = hub_self  # the hub documents itself; in CI it is the workspace, not in ./checkout
         if not f.is_file():
             continue
         data = yaml.safe_load(f.read_text(encoding="utf-8"))

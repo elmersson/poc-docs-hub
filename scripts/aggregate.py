@@ -33,7 +33,7 @@ def load_owner(repo_dir):
         return (data.get("spec", {}) or {}).get("owner", "unowned")
     return "unowned"
 
-def inject_meta_banner(md, repo, rel_in_repo, gh_owner):
+def inject_meta_banner(md, repo, rel_in_repo, gh_owner, docs_dirname="docs"):
     text = md.read_text(encoding="utf-8")
     if "<small>Owned by" in text:
         return
@@ -45,7 +45,7 @@ def inject_meta_banner(md, repo, rel_in_repo, gh_owner):
     if reviewed:
         parts.append("last reviewed " + reviewed.group(1))
     if gh_owner:
-        url = "https://github.com/" + gh_owner + "/" + repo + "/edit/main/docs/" + rel_in_repo
+        url = "https://github.com/" + gh_owner + "/" + repo + "/edit/main/" + docs_dirname + "/" + rel_in_repo
         parts.append("[edit at source](" + url + ")")
     banner = "<small>" + " · ".join(parts) + "</small>\n"
     lines = text.splitlines(keepends=True)
@@ -73,7 +73,10 @@ def main():
     missing = []
     for repo, slug in REPOS.items():
         repo_dir = Path(args.source).resolve() / repo
-        src = repo_dir / "docs"
+        if not repo_dir.is_dir() and slug == "docs-hub":
+            repo_dir = hub  # the hub documents itself; in CI it is the workspace, not in ./checkout
+        # hub self-docs live in platform-docs/ because docs/ is the generated site
+        src = repo_dir / "platform-docs" if (repo_dir / "platform-docs").is_dir() else repo_dir / "docs"
         if not src.is_dir():
             missing.append(repo)
             continue
@@ -91,7 +94,7 @@ def main():
             lines.append("  - " + (titles[x] + ": " + x if x in titles else x))
         (target / ".pages").write_text("\n".join(lines) + "\n", encoding="utf-8")
         for page in target.rglob("*.md"):
-            inject_meta_banner(page, repo, page.relative_to(target).as_posix(), args.github_owner)
+            inject_meta_banner(page, repo, page.relative_to(target).as_posix(), args.github_owner, src.name)
         print("aggregated " + repo + " -> docs/teams/" + team + "/" + slug)
 
     if missing:
