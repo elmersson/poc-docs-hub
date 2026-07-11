@@ -1,0 +1,8 @@
+# Single source of truth for which repos the docs platform aggregates.
+# Adding a service = add one line here (plus the repo's own catalog-info.yaml).
+repos:
+  poc-shop-frontend: shop-frontend
+  poc-orders-service: orders-service
+  poc-payments-service: payments-service
+  poc-inventory-service: inventory-service
+  poc-shared-contracts: shared-contracts
