@@ -4,10 +4,15 @@ docs/teams/
 docs/health.md
 docs/catalog.md
 docs/catalog.json
-docs/embeddings.json
 docs/services.md
+docs/analytics.md
+docs/embeddings.json
 docs/llms.txt
 docs/llms-full.txt
+query-log.jsonl
+gaps-report.md
+register.json
+register.csv
 node_modules/
 mcp/node_modules/
 __pycache__/
