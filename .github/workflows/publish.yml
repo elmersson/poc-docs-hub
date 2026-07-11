@@ -40,10 +40,10 @@ jobs:
           python scripts/crosslink.py --source ./checkout
           python scripts/embed.py
           python scripts/health.py
+          python scripts/stats.py
           python scripts/generate_llms_txt.py --base-url "https://${{ github.repository_owner }}.github.io/poc-docs-hub"
-          mkdocs build
+          mkdocs build --strict
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - id: de

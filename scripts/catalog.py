@@ -106,7 +106,7 @@ def main():
             + (", ".join("`" + a + "`" for a in c["provides"]) or "-") + " | "
             + (", ".join("`" + a + "`" for a in c["consumes"]) or "-") + " |")
     out += ["", "## Dependency graph", "",
-        "[Open the interactive graph](graph.html): pan, zoom, drag, click a service to jump to its docs. Static overview below.", "",
+        "[Open the interactive graph](dependency-graph.md): pan, zoom, drag, click a service to jump to its docs. Static overview below.", "",
         "```mermaid", "graph LR"]
     for name, c in comps.items():
         out.append("  " + name.replace("-", "_") + '["' + name + "<br/><i>" + c["owner"] + '</i>"]')

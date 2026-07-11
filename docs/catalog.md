@@ -20,7 +20,7 @@ Generated from each repo's catalog-info.yaml. This page, not a wiki, is the sour
 
 ## Dependency graph
 
-[Open the interactive graph](graph.html): pan, zoom, drag, click a service to jump to its docs. Static overview below.
+[Open the interactive graph](dependency-graph.md): pan, zoom, drag, click a service to jump to its docs. Static overview below.
 
 ```mermaid
 graph LR

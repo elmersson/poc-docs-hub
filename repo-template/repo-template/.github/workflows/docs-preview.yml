@@ -1,0 +1,31 @@
+# Rendered preview of THIS repo's docs on every docs PR, so reviewers see pages,
+# not markdown diffs. Uses GitHub Pages subdirectory previews (rossjrw/pr-preview-action).
+# NOTE: Pages on private repos requires a paid GitHub plan; on free private repos this
+# still builds (catching mkdocs errors) but skips the deploy.
+name: docs-preview
+on:
+  pull_request:
+    paths: ["docs/**", "mkdocs.yml"]
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: docs-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build docs
+        run: |
+          pip install mkdocs-material
+          mkdocs build --site-dir site
+      - name: Deploy PR preview
+        uses: rossjrw/pr-preview-action@v1
+        continue-on-error: true   # fails gracefully where Pages is unavailable (free private repos)
+        with:
+          source-dir: site
