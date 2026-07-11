@@ -1,3 +1,9 @@
 mkdocs-material>=9.5
 pyyaml>=6.0
 boto3>=1.34   # for EMBED_PROVIDER=bedrock (Titan embeddings)
+mkdocs-awesome-pages-plugin>=2.9
+mkdocs-minify-plugin>=0.8
+mkdocs-redirects>=1.2
+mkdocs-swagger-ui-tag>=0.6
+mkdocs-rss-plugin>=1.12
+mkdocs-print-site-plugin>=2.3

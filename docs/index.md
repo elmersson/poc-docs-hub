@@ -24,7 +24,7 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
     Every component with its owner, dependencies, and API consumers. Generated, never stale.
 
-- **[Interactive dependency graph](graph.html)**
+- **[Interactive dependency graph](dependency-graph.md)**
 
     Pan, zoom and drag through the whole system. Click a service to open its docs.
 
@@ -52,4 +52,4 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
 ## Teams and their services
 
-Docs are organized by owning team under `teams/`. Each team page lists its services; each service page shows owne
+Docs are organized by owning team under `teams/`. Each team

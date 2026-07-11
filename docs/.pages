@@ -1,0 +1,15 @@
+# Curated sidebar order (awesome-pages plugin). Everything not listed would be
+# appended, but we list all top-level entries explicitly for a stable, human order.
+nav:
+  - Home: index.md
+  - Teams & services: teams
+  - Service explorer: services.md
+  - System catalog: catalog.md
+  - Dependency graph: dependency-graph.md
+  - Event catalog: event-catalog.md
+  - Docs health: health.md
+  - Docs analytics: analytics.md
+  - Tags: tags.md
+  - Docs MCP server: mcp.md
+  - Writing docs: docs-guide.md
+  - Onboarding: onboarding.md

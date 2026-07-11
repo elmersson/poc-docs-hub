@@ -1,4 +1,5 @@
 site_name: Demo Shop Engineering Docs
+site_url: https://elmersson.github.io/poc-docs-hub/
 site_description: Aggregated documentation for the demo-shop system
 repo_url: https://github.com/elmersson/poc-docs-hub
 repo_name: elmersson/poc-docs-hub
@@ -15,6 +16,7 @@ theme:
     - navigation.instant
     - navigation.tracking
     - navigation.sections
+    - navigation.indexes
     - navigation.top
     - navigation.footer
     - search.suggest
@@ -56,4 +58,17 @@ extra_css:
 plugins:
   - search
   - tags
-# nav intentionally omitted: MkDocs auto-generates it from the docs/ tree.
+  - awesome-pages
+  - minify:
+      minify_html: true
+  - redirects:
+      redirect_maps:
+        services/index.md: services.md   # pre-team-hierarchy URLs
+  - swagger-ui-tag
+  - rss:
+      match_path: ".*"
+      date_from_meta:
+        as_creation: last_reviewed
+        as_update: last_reviewed
+  - print-site   # must stay last: one-click whole-site page for PDF export (DORA evidence)
+# nav intentional

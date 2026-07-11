@@ -80,10 +80,19 @@ def main():
         team = load_owner(repo_dir)
         target = hub / "docs" / "teams" / team / slug
         shutil.copytree(src, target, dirs_exist_ok=True)
+        # logical sidebar order within each service (awesome-pages)
+        subs = [d.name for d in target.iterdir() if d.is_dir()]
+        titles = {"how-to": "How-to guides", "reference": "Reference", "runbooks": "Runbooks", "adr": "ADRs",
+                  "getting-started": "Getting started", "guides": "Guides", "testing": "Testing"}
+        order = ["index.md"] + [x for x in ("getting-started", "how-to", "guides", "reference", "testing", "runbooks", "adr") if x in subs] \
+                + sorted(x for x in subs if x not in titles)
+        lines = ["nav:"]
+        for x in order:
+            lines.append("  - " + (titles[x] + ": " + x if x in titles else x))
+        (target / ".pages").write_text("\n".join(lines) + "\n", encoding="utf-8")
         for page in target.rglob("*.md"):
             inject_meta_banner(page, repo, page.relative_to(target).as_posix(), args.github_owner)
         print("aggregated " + repo + " -> docs/teams/" + team + "/" + slug)
-
 
     if missing:
         print("WARNING: missing repos: " + ", ".join(missing))
