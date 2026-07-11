@@ -75,6 +75,34 @@ def main() -> None:
     out += ["", "## Pages missing front-matter", ""]
     out += ([f"- {m}" for m in missing] or ["None."])
 
+    # machine-readable snapshot (for the MCP get_docs_health tool) + trend history
+    import json
+    team_stats = {}
+    for team in sorted(teams):
+        pages = teams[team]
+        team_stats[team] = {
+            "pages": len(pages),
+            "fresh": sum(1 for *_, st in pages if st == "fresh"),
+            "aging": sum(1 for *_, st in pages if st == "aging"),
+            "stale": sum(1 for *_, st in pages if st == "STALE"),
+        }
+    snapshot = {"date": today.isoformat(), "teams": team_stats,
+                "totals": {"pages": len(rows), "stale": len(stale), "missing_frontmatter": len(missing)}}
+    (docs / "health.json").write_text(json.dumps(snapshot, indent=2), encoding="utf-8")
+    hist = docs.parent / "health-history.jsonl"
+    lines_h = hist.read_text(encoding="utf-8").splitlines() if hist.is_file() else []
+    if not lines_h or json.loads(lines_h[-1])["date"] != snapshot["date"]:
+        with open(hist, "a", encoding="utf-8") as f:
+            f.write(json.dumps(snapshot) + "\n")
+        lines_h.append(json.dumps(snapshot))
+    # trend section appended to health.md
+    if len(lines_h) > 1:
+        trend = ["", "## Trend", "", "| Date | Pages | Stale |", "|---|---|---|"]
+        for l in lines_h[-8:]:
+            h = json.loads(l)
+            trend.append("| " + h["date"] + " | " + str(h["totals"]["pages"]) + " | " + str(h["totals"]["stale"]) + " |")
+        out += trend
+
     (docs / "health.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"wrote docs/health.md: {len(rows)} pages, {len(stale)} stale, {len(missing)} missing front-matter")
 

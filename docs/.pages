@@ -1,5 +1,4 @@
-# Curated sidebar order (awesome-pages plugin). Everything not listed would be
-# appended, but we list all top-level entries explicitly for a stable, human order.
+# Curated sidebar order (awesome-pages plugin).
 nav:
   - Home: index.md
   - Teams & services: teams

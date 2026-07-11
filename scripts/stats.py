@@ -58,6 +58,24 @@ def main():
     bad = [e for e in feedback if not e.get("helpful")]
     out += ["- \"" + e.get("query", "?") + "\": " + (e.get("note") or "no note") for e in bad[-20:]] or ["None. Either the docs are great or nobody is giving feedback."]
 
+    # trend history: one row per day
+    snap = {"date": date.today().isoformat(), "queries": len(searches),
+            "zero_rate": round(len(zero) / len(searches), 2) if searches else None,
+            "helpful_rate": round(helpful / len(feedback), 2) if feedback else None}
+    hist = hub / "stats-history.jsonl"
+    lines_h = hist.read_text(encoding="utf-8").splitlines() if hist.is_file() else []
+    if not lines_h or json.loads(lines_h[-1])["date"] != snap["date"]:
+        with open(hist, "a", encoding="utf-8") as f:
+            f.write(json.dumps(snap) + "\n")
+        lines_h.append(json.dumps(snap))
+    if len(lines_h) > 1:
+        out += ["", "## Trend", "", "| Date | Queries | Zero-result | Helpful |", "|---|---|---|---|"]
+        for l in lines_h[-8:]:
+            h = json.loads(l)
+            out.append("| " + h["date"] + " | " + str(h["queries"]) + " | "
+                       + (str(h["zero_rate"]) if h["zero_rate"] is not None else "-") + " | "
+                       + (str(h["helpful_rate"]) if h["helpful_rate"] is not None else "-") + " |")
+
     (hub / "docs" / "analytics.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("wrote docs/analytics.md from " + str(len(events)) + " events")
 
