@@ -14,7 +14,7 @@ gaps-report.md
 register.json
 register.csv
 node_modules/
-mcp/node_module
+mcp/node_modules/
 docs/health.json
 health-history.jsonl
 stats-history.jsonl

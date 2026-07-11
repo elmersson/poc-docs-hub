@@ -10,6 +10,14 @@ Every component in demo-shop. Use the header search for full-text search across 
 
 <div class="grid cards" markdown>
 
+- **[docs-hub](teams/team-platform/docs-hub/index.md)** · `documentation`
+
+    The docs platform itself - aggregates every repo's docs, builds this site, runs the drift pipeline and the MCP server
+
+    Team: [team-platform](teams/team-platform/index.md) · `#platform` `#docs` `#mkdocs` `#mcp` `#pipeline`
+
+    [:material-file-document: Docs](teams/team-platform/docs-hub/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-docs-hub) · [:material-chart-line: Live site](https://elmersson.github.io/poc-docs-hub/) · [:material-google-analytics: Publish pipeline](https://github.com/elmersson/poc-docs-hub/actions/workflows/publish.yml)
+
 - **[inventory-service](teams/team-fulfillment/inventory-service/index.md)** · `service`
 
     Stock levels and reservations for demo-shop
@@ -34,13 +42,13 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     [:material-file-document: Docs](teams/team-payments/payments-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-payments-service) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-payments-service) · [:material-chart-line: Monitoring](https://grafana.internal.demo-shop/d/payments-service)
 
-- **[shared-contracts](teams/team-platform/shared-con/index.md)** · `library`
+- **[shared-contracts](teams/team-platform/shared-contracts/index.md)** · `library`
 
     Shared TypeScript API types and event schemas for every demo-shop service
 
     Team: [team-platform](teams/team-platform/index.md) · `#library` `#types` `#contracts` `#events`
 
-    [:material-file-document: Docs](teams/team-platform/shared-con/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shared-contracts) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-shared-contracts)
+    [:material-file-document: Docs](teams/team-platform/shared-contracts/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shared-contracts) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-shared-contracts)
 
 - **[shop-frontend](teams/team-frontend/shop-frontend/index.md)** · `website`
 

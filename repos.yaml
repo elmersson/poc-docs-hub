@@ -6,3 +6,4 @@ repos:
   poc-payments-service: payments-service
   poc-inventory-service: inventory-service
   poc-shared-contracts: shared-contracts
+  poc-docs-hub: docs-hub   # the hub documents itself (pages live in platform-docs/)
