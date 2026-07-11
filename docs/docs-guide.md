@@ -1,7 +1,7 @@
 ---
 owner: team-platform
 system: demo-shop
-last_reviewed: 2026-07-10
+last_reviewed: 2026-07-11
 ---
 
 # Writing docs
@@ -17,7 +17,7 @@ Each repo has a `docs/` folder following Diátaxis:
 - `adr/`: architecture decision records. Append-only; supersede, never edit accepted records.
 - `index.md`: what the service does, who owns it, changelog.
 
-The hub itself carries generated org-level pages you never hand-edit: `catalog.md` (the system catalog) and `services.md` (the service explorer), both built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects each service's `tags` and a **Relations** section into every aggregated service `index.md`, so tags, ownership, and coupling on those pages come from the pipeline, not the source repo.
+The hub itself carries generated org-level pages you never hand-edit: `catalog.md` (the system catalog) and `services.md` (the service explorer), both built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects each service's `tags` and a **Relations** section into every aggregated service `index.md`, so tags, ownership, and coupling on those pages come from the pipeline, not the source repo. Team landing pages (`teams/<team>/index.md`) are generated the same way; their description and contact line (Slack channel, CODEOWNERS) come from a hub-level `teams.yaml`.
 
 The pipeline also produces machine-readable indexes the [docs MCP server](mcp.md) reads at query time: `scripts/catalog.py` emits `catalog.json` (the component catalog) and `scripts/embed.py` emits `embeddings.json` (the semantic-search index, built only when `VOYAGE_API_KEY` is set). Both are git-ignored and generated; never hand-edit them.
 
@@ -33,7 +33,7 @@ last_reviewed: 2026-07-01
 ---
 ```
 
-CI flags pages whose `last_reviewed` is older than 6 months.
+CI flags pages whose `last_reviewed` is older than 6 months (a year fails the build). Runbooks are held to a tighter SLA — warned at 90 days, failed at 183 — since they serve as audit evidence.
 
 ## Writing for humans and agents
 
