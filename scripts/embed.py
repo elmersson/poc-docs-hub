@@ -20,7 +20,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-MODEL = "voyage-3-lite"
+MODEL = "voyage-4-lite"  # successor to voyage-3-lite: same price, 200M free tokens
 BATCH = int(os.environ.get("EMBED_BATCH", "32"))
 MAX_CHARS = 6000
 MAX_RETRIES = 8
