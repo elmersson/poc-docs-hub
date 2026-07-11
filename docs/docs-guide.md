@@ -27,7 +27,7 @@ The hub itself carries generated org-level pages you never hand-edit: `catalog.m
 
 Run `.\preview.ps1` from the hub (service repos cloned alongside it) to run the full pipeline — aggregate, catalog, crosslink, health, `llms.txt` — and serve the site on :8000. Pass `-Owner` / `-Source` to override the GitHub owner used for edit-at-source links and the location of the sibling repos.
 
-The pipeline also produces machine-readable indexes the [docs MCP server](mcp.md) reads at query time: `scripts/catalog.py` emits `catalog.json` (the component catalog) and `scripts/embed.py` emits `embeddings.json` (the semantic-search index, built only when `VOYAGE_API_KEY` is set). Both are git-ignored and generated; never hand-edit them.
+The pipeline also produces machine-readable indexes the [docs MCP server](mcp.md) reads at query time: `scripts/catalog.py` emits `catalog.json` (the component catalog), `scripts/embed.py` emits `embeddings.json` (the semantic-search index, built only when `VOYAGE_API_KEY` is set), and `scripts/health.py` emits `health.json` (per-team freshness metrics, read by `get_docs_health`) plus appends a daily snapshot to `health-history.jsonl` for trend history. These are git-ignored and generated; never hand-edit them.
 
 Aggregation (`scripts/aggregate.py`) copies each repo's `docs/` into `teams/<team>/<service>/` (grouped by the owning team from `catalog-info.yaml`) and injects an ownership/freshness banner below the top heading of every aggregated page: the page's `owner`, its `last_reviewed` date, and an **edit at source** link back to the page in its home repo. The link is built from `--github-owner`; without that flag the banner still shows owner and review date, but omits the link. Edit those pages at the source, never here.
 
