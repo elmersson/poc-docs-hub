@@ -52,13 +52,26 @@ const loadJson = (name) => {
   return existsSync(f) ? JSON.parse(readFileSync(f, "utf-8")) : null;
 };
 
-async function embedQuery(text, model) {
+async function embedQuery(text, index) {
+  // provider recorded in embeddings.json by scripts/embed.py: bedrock (Titan V2) or voyage
+  if (index.provider === "bedrock") {
+    const { BedrockRuntimeClient, InvokeModelCommand } =
+      await import("@aws-sdk/client-bedrock-runtime");
+    const client = new BedrockRuntimeClient({ region: index.region ?? process.env.AWS_REGION ?? "eu-central-1" });
+    const resp = await client.send(new InvokeModelCommand({
+      modelId: index.model,
+      contentType: "application/json",
+      accept: "application/json",
+      body: JSON.stringify({ inputText: text, dimensions: 1024, normalize: true }),
+    }));
+    return JSON.parse(new TextDecoder().decode(resp.body)).embedding;
+  }
   const key = process.env.VOYAGE_API_KEY;
   if (!key) return null;
   const r = await fetch("https://api.voyageai.com/v1/embeddings", {
     method: "POST",
     headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
-    body: JSON.stringify({ model, input: [text] }),
+    body: JSON.stringify({ model: index.model, input: [text] }),
   });
   if (!r.ok) throw new Error("Voyage API " + r.status);
   return (await r.json()).data[0].embedding;
@@ -139,9 +152,9 @@ function buildServer() {
       const index = loadJson("embeddings.json");
       if (!index) return { content: [{ type: "text", text: "Semantic index not built (run scripts/embed.py with VOYAGE_API_KEY). Use search_docs instead." }] };
       let qv;
-      try { qv = await embedQuery(query, index.model); }
+      try { qv = await embedQuery(query, index); }
       catch (e) { return { content: [{ type: "text", text: "Embedding API error: " + e.message + ". Use search_docs instead." }] }; }
-      if (!qv) return { content: [{ type: "text", text: "VOYAGE_API_KEY not set on the server. Use search_docs instead." }] };
+      if (!qv) return { content: [{ type: "text", text: "Embedding credentials not set on the server (AWS creds for bedrock, or VOYAGE_API_KEY). Use search_docs instead." }] };
       const scored = index.chunks
         .map((c) => ({ page: c.page, section: c.section, score: cosine(qv, c.vector) }))
         .sort((a, b) => b.score - a.score)

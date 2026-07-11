@@ -34,13 +34,13 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     [:material-file-document: Docs](teams/team-payments/payments-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-payments-service) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-payments-service) · [:material-chart-line: Monitoring](https://grafana.internal.demo-shop/d/payments-service)
 
-- **[shared-contracts](teams/team-platform/shared-contracts/index.md)** · `library`
+- **[shared-contracts](teams/team-platform/shared-con/index.md)** · `library`
 
     Shared TypeScript API types and event schemas for every demo-shop service
 
     Team: [team-platform](teams/team-platform/index.md) · `#library` `#types` `#contracts` `#events`
 
-    [:material-file-document: Docs](teams/team-platform/shared-contracts/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shared-contracts) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-shared-contracts)
+    [:material-file-document: Docs](teams/team-platform/shared-con/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shared-contracts) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-shared-contracts)
 
 - **[shop-frontend](teams/team-frontend/shop-frontend/index.md)** · `website`
 

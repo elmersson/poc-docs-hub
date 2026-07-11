@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """Build a semantic-search index over the aggregated docs.
 
-Chunks every page by H2 section, embeds via the Voyage AI API, and writes
-docs/embeddings.json for the MCP server's semantic_search tool.
+Providers (env EMBED_PROVIDER):
+  bedrock  - Amazon Titan Text Embeddings V2 via AWS Bedrock (default for Qred:
+             same AWS account, no new vendor, $0.02/M tokens). Uses boto3 with
+             standard AWS credentials (env/instance role/OIDC in CI).
+  voyage   - Voyage AI (needs VOYAGE_API_KEY; used in the PoC before AWS).
 
-Requires env VOYAGE_API_KEY. Without it, prints a notice and exits 0.
-Rate-limit aware: waits and retries on HTTP 429 (Voyage free tier is ~3 req/min),
-so a full run on the free tier takes a few minutes. Set EMBED_BATCH to tune.
+Chunks pages by H2 section, writes docs/embeddings.json for semantic_search.
+Skips gracefully (exit 0) when credentials are absent, so pipelines never break.
 
 Run AFTER aggregate.py + catalog.py:
-    python scripts/embed.py
+    EMBED_PROVIDER=bedrock python scripts/embed.py
 """
 import json
 import os
@@ -20,11 +22,14 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-MODEL = "voyage-4-lite"  # successor to voyage-3-lite: same price, 200M free tokens
-BATCH = int(os.environ.get("EMBED_BATCH", "32"))
+PROVIDER = os.environ.get("EMBED_PROVIDER", "bedrock")
+BEDROCK_MODEL = os.environ.get("EMBED_MODEL_ID", "amazon.titan-embed-text-v2:0")
+BEDROCK_REGION = os.environ.get("AWS_REGION", "eu-central-1")
+VOYAGE_MODEL = "voyage-4-lite"
+BATCH = int(os.environ.get("EMBED_BATCH", "32"))  # voyage only; titan embeds one text per call
 MAX_CHARS = 6000
 MAX_RETRIES = 8
-RETRY_WAIT = 25  # seconds, matches ~3 requests/min free tier
+RETRY_WAIT = 25
 
 def chunk_page(path, rel):
     text = path.read_text(encoding="utf-8")
@@ -41,17 +46,16 @@ def chunk_page(path, rel):
             chunks.append({"page": rel, "section": heading, "text": body[:MAX_CHARS]})
     return chunks
 
-def embed_batch(texts, key):
+def embed_voyage(texts, key):
     for attempt in range(MAX_RETRIES):
         req = urllib.request.Request(
             "https://api.voyageai.com/v1/embeddings",
-            data=json.dumps({"model": MODEL, "input": texts}).encode(),
+            data=json.dumps({"model": VOYAGE_MODEL, "input": texts}).encode(),
             headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
         )
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
-                data = json.loads(r.read())
-            return [d["embedding"] for d in data["data"]]
+                return [d["embedding"] for d in json.loads(r.read())["data"]]
         except urllib.error.HTTPError as e:
             if e.code == 429 and attempt < MAX_RETRIES - 1:
                 wait = RETRY_WAIT * (attempt + 1)
@@ -61,27 +65,53 @@ def embed_batch(texts, key):
             raise
     raise RuntimeError("unreachable")
 
+def embed_all_bedrock(chunks):
+    import boto3  # lazy: only needed for this provider
+    client = boto3.client("bedrock-runtime", region_name=BEDROCK_REGION)
+    vectors = []
+    for i, c in enumerate(chunks):
+        body = json.dumps({"inputText": c["text"], "dimensions": 1024, "normalize": True})
+        resp = client.invoke_model(modelId=BEDROCK_MODEL, body=body,
+                                   contentType="application/json", accept="application/json")
+        vectors.append(json.loads(resp["body"].read())["embedding"])
+        if (i + 1) % 50 == 0:
+            print("  " + str(i + 1) + "/" + str(len(chunks)))
+    return vectors
+
 def main():
-    key = os.environ.get("VOYAGE_API_KEY", "")
     hub = Path(__file__).resolve().parent.parent
     docs = hub / "docs"
-    out_file = docs / "embeddings.json"
-    if not key:
-        print("VOYAGE_API_KEY not set, skipping semantic index (keyword search still works)")
-        return
     chunks = []
     for page in sorted(docs.rglob("*.md")):
         chunks.extend(chunk_page(page, page.relative_to(docs).as_posix()))
-    print("embedding " + str(len(chunks)) + " chunks with " + MODEL + " (batch " + str(BATCH) + ")")
-    vectors = []
-    for i in range(0, len(chunks), BATCH):
-        vectors.extend(embed_batch([c["text"] for c in chunks[i:i + BATCH]], key))
-        print("  " + str(min(i + BATCH, len(chunks))) + "/" + str(len(chunks)))
+
+    if PROVIDER == "voyage":
+        key = os.environ.get("VOYAGE_API_KEY", "")
+        if not key:
+            print("VOYAGE_API_KEY not set, skipping semantic index (keyword search still works)")
+            return
+        print("embedding " + str(len(chunks)) + " chunks with " + VOYAGE_MODEL)
+        vectors = []
+        for i in range(0, len(chunks), BATCH):
+            vectors.extend(embed_voyage([c["text"] for c in chunks[i:i + BATCH]], key))
+            print("  " + str(min(i + BATCH, len(chunks))) + "/" + str(len(chunks)))
+        model = VOYAGE_MODEL
+    else:
+        try:
+            print("embedding " + str(len(chunks)) + " chunks with " + BEDROCK_MODEL + " (" + BEDROCK_REGION + ")")
+            vectors = embed_all_bedrock(chunks)
+        except Exception as e:
+            print("Bedrock unavailable (" + str(e) + "), skipping semantic index (keyword search still works)")
+            return
+        model = BEDROCK_MODEL
+
     for c, v in zip(chunks, vectors):
         c["vector"] = v
         del c["text"]
-    out_file.write_text(json.dumps({"model": MODEL, "chunks": chunks}), encoding="utf-8")
-    print("wrote docs/embeddings.json")
+    (docs / "embeddings.json").write_text(
+        json.dumps({"provider": PROVIDER, "model": model, "region": BEDROCK_REGION, "chunks": chunks}),
+        encoding="utf-8")
+    print("wrote docs/embeddings.json (" + PROVIDER + "/" + model + ")")
 
 if __name__ == "__main__":
     try:

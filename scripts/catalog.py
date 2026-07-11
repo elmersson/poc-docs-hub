@@ -105,7 +105,9 @@ def main():
             + (", ".join(link_from_root(comps, d) for d in c["depends_on"]) or "-") + " | "
             + (", ".join("`" + a + "`" for a in c["provides"]) or "-") + " | "
             + (", ".join("`" + a + "`" for a in c["consumes"]) or "-") + " |")
-    out += ["", "## Dependency graph", "", "```mermaid", "graph LR"]
+    out += ["", "## Dependency graph", "",
+        "[Open the interactive graph](graph.html): pan, zoom, drag, click a service to jump to its docs. Static overview below.", "",
+        "```mermaid", "graph LR"]
     for name, c in comps.items():
         out.append("  " + name.replace("-", "_") + '["' + name + "<br/><i>" + c["owner"] + '</i>"]')
     for name, c in comps.items():

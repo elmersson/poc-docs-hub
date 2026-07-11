@@ -24,6 +24,10 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
     Every component with its owner, dependencies, and API consumers. Generated, never stale.
 
+- **[Interactive dependency graph](graph.html)**
+
+    Pan, zoom and drag through the whole system. Click a service to open its docs.
+
 - **[Event catalog](event-catalog.md)**
 
     Every event, schema version, producers and consumers.
@@ -48,16 +52,4 @@ One searchable site for everything in the demo-shop system. Service docs are pul
 
 ## Teams and their services
 
-Docs are organized by owning team under `teams/`. Each team page lists its services; each service page shows ownership, freshness and relations.
-
-| Team | Owns |
-|---|---|
-| [team-frontend](teams/team-frontend/index.md) | shop-frontend |
-| [team-checkout](teams/team-checkout/index.md) | orders-service |
-| [team-payments](teams/team-payments/index.md) | payments-service |
-| [team-fulfillment](teams/team-fulfillment/index.md) | inventory-service |
-| [team-platform](teams/team-platform/index.md) | shared-contracts, docs-hub |
-
-## How this site stays fresh
-
-Docs live in each service repo and change in the same PR as the code. A merge to any repo triggers a rebuild here. A Claude-powered pipeline reviews every merged PR and opens a docs-update PR when the code drifted from the docs. Humans approve everything.
+Docs are organized by owning team under `teams/`. Each team page lists its services; each service page shows owne
