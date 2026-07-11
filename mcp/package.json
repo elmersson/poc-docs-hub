@@ -6,6 +6,7 @@
   "bin": { "demo-shop-docs-mcp": "server.mjs" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.600.0",
     "zod": "^3.23.0"
   }
 }

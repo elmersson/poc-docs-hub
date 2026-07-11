@@ -57,7 +57,7 @@ If catalog tools reply `catalog.json not generated`, run `scripts/catalog.py` (s
 
 ## Semantic search
 
-`semantic_search` finds sections by meaning rather than exact words ("how do we handle money rounding" matches the integer-minor-units ADR). It requires a one-time index: run `scripts/embed.py` with env `VOYAGE_API_KEY` set (also add the key as a repo secret so CI rebuilds the index on publish). Without the key everything else works and the tool politely redirects agents to keyword search.
+`semantic_search` finds sections by meaning rather than exact words ("how do we handle money rounding" matches the integer-minor-units ADR). The index is built by `scripts/embed.py`, which supports two providers via `EMBED_PROVIDER`: **bedrock** (default; Amazon Titan Text Embeddings V2, $0.02/M tokens, runs inside the AWS account using standard credentials, no new vendor) and **voyage** (needs `VOYAGE_API_KEY`). In CI, grant the workflow AWS credentials via OIDC and the index rebuilds on publish. Without credentials everything else works and the tool politely redirects agents to keyword search.
 
 ## Shared HTTP server
 
@@ -71,4 +71,4 @@ claude mcp add demo-shop-docs --transport http http://<host>:3333/mcp --header "
 
 ## Roadmap
 
-Remaining upgrade for the real pilot: replace the static bearer token with OAuth via the company IdP for per-user identity and audit logging, once real internal docs are involved. Network isolation (internal load balancer only) applies in every setup.
+Remaining upgrade for the real pilot: replace the static bearer token with OAuth via the company IdP for per-user identity and audit logging, once real internal docs are involved.

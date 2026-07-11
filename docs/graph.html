@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Demo Shop dependency graph</title>
+<script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+<style>
+  :root { --ink:#002d30; --deep:#005A4A; --bright:#29BE88; --greige:#F8F9F7; }
+  html,body { margin:0; height:100%; font-family:Inter,system-ui,sans-serif; background:var(--greige); }
+  #bar { position:fixed; top:0; left:0; right:0; z-index:10; background:var(--ink); color:#fff;
+         padding:8px 14px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:13px; }
+  #bar a { color:var(--bright); text-decoration:none; }
+  #bar label { display:flex; gap:5px; align-items:center; opacity:.9; }
+  #bar input[type=search] { border-radius:6px; border:none; padding:4px 8px; width:180px; }
+  #bar button { background:var(--deep); color:#fff; border:none; border-radius:6px; padding:4px 10px; cursor:pointer; }
+  #bar button:hover { background:var(--bright); color:var(--ink); }
+  #cy { position:absolute; top:46px; bottom:0; left:0; right:0; }
+  #panel { position:fixed; right:12px; top:58px; width:260px; background:#fff; border:1px solid #e0e2d8;
+           border-radius:12px; padding:14px; box-shadow:0 4px 14px rgba(0,45,48,.12); display:none; z-index:9; font-size:13px; }
+  #panel h3 { margin:0 0 4px; color:var(--ink); }
+  #panel .team { font-size:12px; color:var(--deep); }
+  #panel a.docs { display:inline-block; margin-top:8px; background:var(--deep); color:#fff;
+                  padding:5px 12px; border-radius:999px; text-decoration:none; }
+  #legend { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { padding:1px 9px; border-radius:999px; color:#002d30; font-weight:600; font-size:11px; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <strong>Dependency graph</strong>
+  <input type="search" id="q" list="names" placeholder="Focus a service...">
+  <datalist id="names"></datalist>
+  <label>depth <input type="range" id="depth" min="1" max="3" value="1" style="width:70px"><span id="depthv">1</span></label>
+  <label><select id="dir">
+    <option value="both">up + downstream</option>
+    <option value="down">downstream (what it uses)</option>
+    <option value="up">upstream (who uses it)</option>
+  </select></label>
+  <label><input type="checkbox" id="edep" checked> dependsOn</label>
+  <label><input type="checkbox" id="eapi" checked> API calls</label>
+  <label><input type="checkbox" id="grp"> group by team</label>
+  <button id="reset">show all</button>
+  <a href="./">back to docs</a>
+  <div id="legend" style="margin-left:auto"></div>
+</div>
+<div id="cy"></div>
+<div id="panel"></div>
+<script>
+const PALETTE = ["#29BE88","#8FD5A3","#89CACC","#E0ACDE","#95CAFF","#EFF4C9","#E6E8D6","#F2DFDF"];
+let cat, cy, teamColor;
+const S = { focus: null, depth: 1, dir: "both", dep: true, api: true, group: false };
+
+fetch("catalog.json").then(r => r.json()).then(data => {
+  cat = data;
+  const teams = [...new Set(Object.values(cat.components).map(c => c.owner))].sort();
+  teamColor = Object.fromEntries(teams.map((t, i) => [t, PALETTE[i % PALETTE.length]]));
+  document.getElementById("legend").innerHTML =
+    teams.map(t => '<span class="chip" style="background:' + teamColor[t] + '">' + t + "</span>").join("");
+  document.getElementById("names").innerHTML =
+    Object.keys(cat.components).map(n => "<option>" + n + "</option>").join("");
+  render();
+});
+
+function allEdges() {
+  const edges = [];
+  for (const [name, c] of Object.entries(cat.components)) {
+    if (S.dep) for (const dep of c.depends_on) if (cat.components[dep])
+      edges.push({ from: name, to: dep, type: "dep" });
+    if (S.api) for (const api of c.consumes)
+      for (const p of cat.api_providers[api] ?? []) if (p !== name)
+        edges.push({ from: name, to: p, type: "api", label: api });
+  }
+  return edges;
+}
+
+function visibleNodes(edges) {
+  if (!S.focus || !cat.components[S.focus]) return new Set(Object.keys(cat.components));
+  const keep = new Set([S.focus]);
+  let frontier = new Set([S.focus]);
+  for (let d = 0; d < S.depth; d++) {
+    const next = new Set();
+    for (const e of edges) {
+      if ((S.dir !== "up") && frontier.has(e.from) && !keep.has(e.to)) { keep.add(e.to); next.add(e.to); }
+      if ((S.dir !== "down") && frontier.has(e.to) && !keep.has(e.from)) { keep.add(e.from); next.add(e.from); }
+    }
+    frontier = next;
+  }
+  return keep;
+}
+
+function render() {
+  const edges = allEdges();
+  const keep = visibleNodes(edges);
+  const els = [];
+  const teamsShown = new Set();
+  for (const [name, c] of Object.entries(cat.components)) {
+    if (!keep.has(name)) continue;
+    teamsShown.add(c.owner);
+    els.push({ data: { id: name, label: name, team: c.owner, type: c.type,
+                       parent: S.group ? "team:" + c.owner : undefined,
+                       url: "teams/" + c.owner + "/" + c.slug + "/" } });
+  }
+  if (S.group) for (const t of teamsShown)
+    els.push({ data: { id: "team:" + t, label: t, isTeam: true } });
+  edges.forEach((e, i) => {
+    if (keep.has(e.from) && keep.has(e.to))
+      els.push({ data: { id: "e" + i, source: e.from, target: e.to, etype: e.type, label: e.label ?? "" } });
+  });
+
+  if (cy) cy.destroy();
+  cy = cytoscape({
+    container: document.getElementById("cy"),
+    elements: els,
+    style: [
+      { selector: "node", style: {
+          label: "data(label)", "text-valign": "center", "text-wrap": "wrap", "text-max-width": 110,
+          "font-family": "Inter, sans-serif", "font-size": 12, color: "#002d30",
+          shape: "round-rectangle", width: "label", height: "label", padding: 12,
+          "background-color": (n) => teamColor[n.data("team")] ?? "#eee",
+          "border-width": (n) => n.data("id") === S.focus ? 4 : 2, "border-color": "#005A4A" } },
+      { selector: "node[type='library']", style: { shape: "hexagon", padding: 16 } },
+      { selector: "node[?isTeam]", style: {
+          "background-color": "#ffffff", "background-opacity": .5, "border-color": "#bbb",
+          "border-width": 1, "font-size": 14, "font-weight": "bold", color: "#005A4A",
+          "text-valign": "top", shape: "round-rectangle" } },
+      { selector: "edge", style: {
+          "curve-style": "bezier", "target-arrow-shape": "triangle", "arrow-scale": 1.1,
+          width: 2, "line-color": "#005A4A", "target-arrow-color": "#005A4A" } },
+      { selector: "edge[etype='api']", style: {
+          "line-style": "dashed", "line-color": "#29BE88", "target-arrow-color": "#29BE88",
+          label: "data(label)", "font-size": 9, color: "#005A4A",
+          "text-background-color": "#F8F9F7", "text-background-opacity": 1, "text-background-padding": 2 } },
+    ],
+    layout: S.group
+      ? { name: "cose", animate: false, nodeRepulsion: 40000, idealEdgeLength: 140, padding: 40 }
+      : { name: "dagre", rankDir: "LR", nodeSep: 40, rankSep: 120, padding: 40 },
+    wheelSensitivity: 0.3,
+  });
+
+  cy.on("tap", "node[!isTeam]", (evt) => {
+    const n = evt.target;
+    const c = cat.components[n.id()];
+    const panel = document.getElementById("panel");
+    panel.style.display = "block";
+    panel.innerHTML = "<h3>" + n.id() + "</h3>" +
+      '<div class="team">' + c.owner + " · " + c.type + "</div>" +
+      "<p>" + (c.description || "") + "</p>" +
+      '<a class="docs" href="' + n.data("url") + '">Open docs</a> ' +
+      '<a class="docs" style="background:#29BE88;color:#002d30" href="#" onclick="setFocus(\'' + n.id() + "');return false\">Focus</a>";
+  });
+  cy.on("tap", (evt) => { if (evt.target === cy) document.getElementById("panel").style.display = "none"; });
+}
+
+function setFocus(name) { S.focus = name; document.getElementById("q").value = name ?? ""; render(); }
+document.getElementById("q").addEventListener("change", (e) => setFocus(e.target.value in (cat?.components ?? {}) ? e.target.value : null));
+document.getElementById("depth").addEventListener("input", (e) => { S.depth = +e.target.value; document.getElementById("depthv").textContent = e.target.value; if (S.focus) render(); });
+document.getElementById("dir").addEventListener("change", (e) => { S.dir = e.target.value; if (S.focus) render(); });
+document.getElementById("edep").addEventListener("change", (e) => { S.dep = e.target.checked; render(); });
+document.getElementById("eapi").addEventListener("change", (e) => { S.api = e.target.checked; render(); });
+document.getElementById("grp").addEventListener("change", (e) => { S.group = e.target.checked; render(); });
+document.getElementById("reset").addEventListener("click", () => setFocus(null));
+</script>
+</body>
+</html>

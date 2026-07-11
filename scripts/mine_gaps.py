@@ -32,6 +32,21 @@ def bad_interactions(log):
             bad.append({"query": e.get("query", ""), "reason": "marked unhelpful: " + (e.get("note") or "no note")})
     return [b for b in bad if b["query"]]
 
+def cluster_bedrock(items):
+    import boto3  # lazy; uses standard AWS credentials
+    prompt = ("Cluster these documentation queries that our docs failed to answer into topic groups. "
+              "For each cluster output a JSON object: {\"topic\": short name, \"suggestion\": one sentence on what doc to write or fix, \"queries\": [...]}. "
+              "Return ONLY a JSON array.\n\n" + json.dumps(items, ensure_ascii=False))
+    client = boto3.client("bedrock-runtime", region_name=os.environ.get("AWS_REGION", "eu-central-1"))
+    resp = client.converse(
+        modelId=os.environ.get("GAP_MODEL_ID", "eu.anthropic.claude-haiku-4-5-v1:0"),
+        messages=[{"role": "user", "content": [{"text": prompt}]}],
+        inferenceConfig={"maxTokens": 2000},
+    )
+    text = resp["output"]["message"]["content"][0]["text"]
+    m = re.search(r"\[[\s\S]*\]", text)
+    return json.loads(m.group(0)) if m else []
+
 def cluster_llm(items, key):
     prompt = ("Cluster these documentation queries that our docs failed to answer into topic groups. "
               "For each cluster output a JSON object: {\"topic\": short name, \"suggestion\": one sentence on what doc to write or fix, \"queries\": [...]}. "
@@ -64,9 +79,15 @@ def main():
     if not bad:
         print("no gap candidates found in the log")
         return
+    provider = os.environ.get("LLM_PROVIDER", "bedrock")
     key = os.environ.get("ANTHROPIC_API_KEY", "")
     try:
-        clusters = cluster_llm(bad, key) if key else cluster_naive(bad)
+        if provider == "bedrock":
+            clusters = cluster_bedrock(bad)
+        elif key:
+            clusters = cluster_llm(bad, key)
+        else:
+            clusters = cluster_naive(bad)
     except Exception as e:
         print("LLM clustering failed (" + str(e) + "), using naive grouping")
         clusters = cluster_naive(bad)

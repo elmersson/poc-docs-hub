@@ -1,0 +1,21 @@
+name: notify-docs-hub
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", "mkdocs.yml", "catalog-info.yaml"]
+permissions:
+  contents: read
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch docs-updated to the hub
+        env:
+          GH_TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          SRC_REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "REPO_DISPATCH_TOKEN not set, skipping"; exit 0; fi
+          gh api "repos/${{ github.repository_owner }}/poc-docs-hub/dispatches" \
+            -f event_type=docs-updated \
+            -f "client_payload[source_repo]=$SRC_REPO" \
+            && echo "hub notified" || echo "dispatch failed (non-fatal)"
