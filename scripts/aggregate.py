@@ -20,6 +20,12 @@ REPOS = {
     "poc-shared-contracts": "shared-contracts",
 }
 
+# repos.yaml (hub root) overrides the fallback dict below: one file to edit when onboarding a repo
+_repos_file = Path(__file__).resolve().parent.parent / "repos.yaml"
+if _repos_file.is_file():
+    REPOS = yaml.safe_load(_repos_file.read_text(encoding="utf-8"))["repos"]
+
+
 def load_owner(repo_dir):
     f = repo_dir / "catalog-info.yaml"
     if f.is_file():

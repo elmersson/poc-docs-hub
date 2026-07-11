@@ -19,26 +19,4 @@ Each repo has a `docs/` folder following Diátaxis:
 
 The hub itself carries generated org-level pages you never hand-edit: `catalog.md` (the system catalog) and `services.md` (the service explorer), both built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects each service's `tags` and a **Relations** section into every aggregated service `index.md`, so tags, ownership, and coupling on those pages come from the pipeline, not the source repo. Team landing pages (`teams/<team>/index.md`) are generated the same way; their description and contact line (Slack channel, CODEOWNERS) come from a hub-level `teams.yaml`.
 
-The pipeline also produces machine-readable indexes the [docs MCP server](mcp.md) reads at query time: `scripts/catalog.py` emits `catalog.json` (the component catalog) and `scripts/embed.py` emits `embeddings.json` (the semantic-search index, built only when `VOYAGE_API_KEY` is set). Both are git-ignored and generated; never hand-edit them.
-
-Aggregation (`scripts/aggregate.py`) copies each repo's `docs/` into `teams/<team>/<service>/` (grouped by the owning team from `catalog-info.yaml`) and injects an ownership/freshness banner below the top heading of every aggregated page: the page's `owner`, its `last_reviewed` date, and an **edit at source** link back to the page in its home repo. The link is built from `--github-owner`; without that flag the banner still shows owner and review date, but omits the link. Edit those pages at the source, never here.
-
-## Front-matter (required on every page)
-
-```yaml
----
-owner: team-checkout
-system: demo-shop
-last_reviewed: 2026-07-01
----
-```
-
-CI flags pages whose `last_reviewed` is older than 6 months (a year fails the build). Runbooks are held to a tighter SLA — warned at 90 days, failed at 183 — since they serve as audit evidence.
-
-## Writing for humans and agents
-
-The same rules serve both: self-contained H2 sections (no "as mentioned above"), specific headings ("Configure webhook retries", not "Configuration"), constraints in the same paragraph as their guidance, exact error messages in troubleshooting sections, simple tables only, no screenshot-only content.
-
-## Ownership and review
-
-CODEOWNERS routes doc changes to the owning team. Anyone may propose a change to any team's docs; the owner approves. AI-drafted docs PRs (from the drift pipeline) follow the same review path, no exceptions.
+The pipeline also produces machine-readable indexes the [docs MCP server](mcp.md) reads at query time: `scripts/catalog.py` emits `catalog.
