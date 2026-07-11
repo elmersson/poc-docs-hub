@@ -83,7 +83,7 @@ const cosine = (a, b) => {
   return dot / (Math.sqrt(na) * Math.sqrt(nb));
 };
 
-export function keywordSearch(query) {
+export function keywordSearch(query, pathFilter) {
   const stop = new Set(["the","a","an","and","or","of","to","in","for","on","is","are",
     "do","does","how","what","when","why","who","this","that","we","our","it"]);
   const stem = (w) => {
@@ -96,6 +96,7 @@ export function keywordSearch(query) {
   for (const file of allPages()) {
     const rel0 = relative(docsDir, file).replaceAll("\\", "/");
     if (rel0 === "analytics.md") continue; // generated from queries; would self-contaminate search
+    if (pathFilter && !rel0.includes(pathFilter)) continue;
     const text = readFileSync(file, "utf-8");
     const tokens = (text.toLowerCase().match(/[a-z0-9]+/g) || []).map(stem);
     const counts = new Map();
@@ -131,7 +132,7 @@ export function keywordSearch(query) {
 }
 
 function buildServer() {
-  const server = new McpServer({ name: "demo-shop-docs", version: "3.1.0" });
+  const server = new McpServer({ name: "demo-shop-docs", version: "3.2.0" });
 
   server.tool(
     "search_docs",
@@ -242,6 +243,73 @@ function buildServer() {
     async ({ query, helpful, note }) => {
       logEvent({ tool: "give_feedback", query, helpful, note: note ?? null });
       return { content: [{ type: "text", text: "Feedback recorded. Thank you." }] };
+    },
+  );
+
+  server.tool(
+    "get_runbook",
+    "ON-CALL: fetch operational runbooks. Give a component name to get its runbooks (criticality, RTO, mitigation steps), or omit it to list all runbooks. Use this first in incidents.",
+    { component: z.string().optional().describe("component name, e.g. payments-service; omit to list all") },
+    async ({ component }) => {
+      const cat = loadJson("catalog.json");
+      const runbooks = allPages().filter((f) => relative(docsDir, f).replaceAll("\\", "/").includes("/runbooks/"));
+      let hits = runbooks;
+      if (component && cat?.components[component]) {
+        const slug = cat.components[component].slug;
+        hits = runbooks.filter((f) => relative(docsDir, f).replaceAll("\\", "/").includes("/" + slug + "/"));
+      }
+      logEvent({ tool: "get_runbook", component: component ?? null, found: hits.length });
+      if (!hits.length) return { content: [{ type: "text", text: "No runbooks found" + (component ? " for " + component : "") + ". Known runbooks: " + runbooks.map((f) => relative(docsDir, f).replaceAll("\\", "/")).join(", ") }] };
+      const text = hits.map((f) => "=== " + relative(docsDir, f).replaceAll("\\", "/") + " ===\n" + readFileSync(f, "utf-8")).join("\n\n");
+      return { content: [{ type: "text", text }] };
+    },
+  );
+
+  server.tool(
+    "search_adrs",
+    "Search architecture decision records across ALL services. Use to check precedent before making a technical decision ('have we decided anything about X before?'). Returns ADRs only.",
+    { query: z.string().describe("decision topic, e.g. 'event versioning' or 'polling vs websockets'") },
+    async ({ query }) => {
+      const hits = keywordSearch(query, "/adr/");
+      logEvent({ tool: "search_adrs", query, results: hits.length });
+      return { content: [{ type: "text", text: hits.length ? JSON.stringify(hits, null, 2) : "No ADRs match. Try list via get_page on a service's adr/ folder." }] };
+    },
+  );
+
+  server.tool(
+    "whats_changed",
+    "PM/EM digest: list docs pages reviewed or updated in the last N days (by last_reviewed front-matter), grouped by owner. Use for 'what changed recently' and release-notes prep.",
+    { days: z.number().optional().describe("lookback window in days, default 7") },
+    async ({ days }) => {
+      const cutoff = new Date(Date.now() - (days ?? 7) * 86400000);
+      const changed = [];
+      for (const f of allPages()) {
+        const rel0 = relative(docsDir, f).replaceAll("\\", "/");
+        const fm = frontMatter(readFileSync(f, "utf-8"));
+        if (fm.last_reviewed && new Date(fm.last_reviewed) >= cutoff)
+          changed.push({ page: rel0, owner: fm.owner ?? "?", last_reviewed: fm.last_reviewed });
+      }
+      changed.sort((a, b) => b.last_reviewed.localeCompare(a.last_reviewed));
+      logEvent({ tool: "whats_changed", days: days ?? 7, results: changed.length });
+      return { content: [{ type: "text", text: changed.length ? JSON.stringify(changed, null, 2) : "No pages updated in the window." }] };
+    },
+  );
+
+  server.tool(
+    "get_docs_health",
+    "EM view: docs health metrics (fresh/aging/stale page counts) per team, with trend history when available. Use for 1:1 prep and team reviews.",
+    { team: z.string().optional().describe("team name, e.g. team-payments; omit for all teams") },
+    async ({ team }) => {
+      const health = loadJson("health.json");
+      if (!health) return { content: [{ type: "text", text: "health.json not generated; run scripts/health.py" }] };
+      const result = team ? { date: health.date, team, metrics: health.teams[team] ?? "unknown team; known: " + Object.keys(health.teams).join(", ") } : health;
+      // trend from history file next to the docs dir
+      try {
+        const hist = readFileSync(join(docsDir, "..", "health-history.jsonl"), "utf-8").trim().split("\n").slice(-6).map((l) => JSON.parse(l));
+        result.trend = hist.map((h) => ({ date: h.date, stale: team ? h.teams[team]?.stale : h.totals.stale, pages: team ? h.teams[team]?.pages : h.totals.pages }));
+      } catch { /* no history yet */ }
+      logEvent({ tool: "get_docs_health", team: team ?? null });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     },
   );
 

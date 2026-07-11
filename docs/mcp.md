@@ -51,6 +51,10 @@ One component's full record: owner, repo, what it depends on, what depends on it
 3. Register with Claude Code: `claude mcp add demo-shop-docs -- node <absolute-path>/mcp/server.mjs`
 4. Smoke test: ask Claude "use get_component to tell me what depends on payments-service". The answer should name orders-service.
 
+## Persona tools (v3.2)
+
+Beyond search and the catalog, four tools serve specific roles. `get_runbook(component)` is for on-call: it returns operational runbooks with criticality, RTO and mitigation steps, no searching required in an incident. `search_adrs(query)` lets tech leads check decision precedent across every service's ADRs at once. `whats_changed(days)` gives PMs and EMs a digest of recently reviewed pages grouped by owner. `get_docs_health(team)` returns per-team freshness metrics with trend history (fed by `health-history.jsonl`, which accumulates one snapshot per day wherever the pipeline runs persistently, i.e. the shared server, not ephemeral CI).
+
 ## Troubleshooting
 
 If catalog tools reply `catalog.json not generated`, run `scripts/catalog.py` (step 2 above). If search returns nothing, the aggregation has not run and `docs/teams/` is empty. The server takes the docs directory as its first argument, so a custom checkout location works: `node server.mjs C:\path\to\docs`.
