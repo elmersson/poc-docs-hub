@@ -19,6 +19,8 @@ Each repo has a `docs/` folder following Diátaxis:
 
 The hub itself carries generated org-level pages you never hand-edit: `catalog.md` (the system catalog) and `services.md` (the service explorer), both built by `scripts/catalog.py` from each repo's `catalog-info.yaml`. That step also injects each service's `tags` and a **Relations** section into every aggregated service `index.md`, so tags, ownership, and coupling on those pages come from the pipeline, not the source repo.
 
+The pipeline also produces machine-readable indexes the [docs MCP server](mcp.md) reads at query time: `scripts/catalog.py` emits `catalog.json` (the component catalog) and `scripts/embed.py` emits `embeddings.json` (the semantic-search index, built only when `VOYAGE_API_KEY` is set). Both are git-ignored and generated; never hand-edit them.
+
 Aggregation (`scripts/aggregate.py`) copies each repo's `docs/` into `teams/<team>/<service>/` (grouped by the owning team from `catalog-info.yaml`) and injects an ownership/freshness banner below the top heading of every aggregated page: the page's `owner`, its `last_reviewed` date, and an **edit at source** link back to the page in its home repo. The link is built from `--github-owner`; without that flag the banner still shows owner and review date, but omits the link. Edit those pages at the source, never here.
 
 ## Front-matter (required on every page)
