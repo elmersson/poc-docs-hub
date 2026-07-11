@@ -1,0 +1,30 @@
+name: retrieval-evals
+on:
+  pull_request:
+    paths: ["scripts/**", "mcp/**", "evals/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out service repos
+        env:
+          GH_TOKEN: ${{ secrets.REPO_READ_TOKEN }}
+        run: |
+          mkdir -p checkout
+          for repo in poc-shop-frontend poc-orders-service poc-payments-service poc-inventory-service poc-shared-contracts; do
+            gh repo clone "${{ github.repository_owner }}/$repo" "checkout/$repo" -- --depth 1
+          done
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build corpus and run evals
+        run: |
+          pip install -r requirements.txt
+          python scripts/aggregate.py --source ./checkout
+          python scripts/catalog.py --source ./checkout
+          python scripts/crosslink.py --source ./checkout
+          python scripts/run_evals.py

@@ -20,6 +20,7 @@ jobs:
           from pathlib import Path
 
           WARN_DAYS, FAIL_DAYS = 183, 365
+          RB_WARN, RB_FAIL = 90, 183  # runbooks are audit evidence, stricter SLA
           today, warn, fail, missing = date.today(), [], [], []
 
           for md in sorted(Path("docs").rglob("*.md")):
@@ -28,8 +29,10 @@ jobs:
               if not m:
                   missing.append(str(md)); continue
               age = (today - datetime.strptime(m.group(1), "%Y-%m-%d").date()).days
-              if age > FAIL_DAYS: fail.append((str(md), age))
-              elif age > WARN_DAYS: warn.append((str(md), age))
+              rb = "runbooks" in md.parts
+              w, f = (RB_WARN, RB_FAIL) if rb else (WARN_DAYS, FAIL_DAYS)
+              if age > f: fail.append((str(md), age))
+              elif age > w: warn.append((str(md), age))
 
           for p, a in warn:
               print(f"::warning file={p}::last_reviewed is {a} days old (SLA {WARN_DAYS}). Review and bump it.")

@@ -1,7 +1,7 @@
 ---
 owner: team-platform
 system: demo-shop
-last_reviewed: 2026-07-10
+last_reviewed: 2026-07-11
 ---
 
 # System catalog

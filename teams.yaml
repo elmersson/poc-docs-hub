@@ -1,0 +1,28 @@
+# Team registry: the source of truth for team-level metadata rendered on team pages
+# and served via the MCP catalog. The Backstage equivalent is Group entities.
+teams:
+  team-frontend:
+    codeowners: "@demo-shop/team-frontend"
+    slack: "#team-frontend"
+    slack_url: https://demo-shop.slack.com/archives/team-frontend
+    description: Owns the customer-facing web shop.
+  team-checkout:
+    codeowners: "@demo-shop/team-checkout"
+    slack: "#team-checkout"
+    slack_url: https://demo-shop.slack.com/archives/team-checkout
+    description: Owns the order lifecycle from cart to fulfilled.
+  team-payments:
+    codeowners: "@demo-shop/team-payments"
+    slack: "#team-payments"
+    slack_url: https://demo-shop.slack.com/archives/team-payments
+    description: Owns payment intents, capture and webhooks.
+  team-fulfillment:
+    codeowners: "@demo-shop/team-fulfillment"
+    slack: "#team-fulfillment"
+    slack_url: https://demo-shop.slack.com/archives/team-fulfillment
+    description: Owns stock, reservations and fulfillment.
+  team-platform:
+    codeowners: "@demo-shop/team-platform"
+    slack: "#platform"
+    slack_url: https://demo-shop.slack.com/archives/platform
+    description: Owns shared contracts, the docs platform and developer tooling.

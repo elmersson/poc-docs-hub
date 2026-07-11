@@ -1,0 +1,39 @@
+# Golden question set for retrieval evals. Grow this with REAL questions from the
+# pilot: every question the bot answered wrong becomes a permanent entry here.
+# expect: answer  -> expected_page must appear in top 3 search results
+# expect: abstain -> a correct system returns nothing relevant (question has no doc)
+questions:
+  - q: reservation ttl how long do reservations last
+    expect: answer
+    expected_page: teams/team-fulfillment/inventory-service/reference/api.md
+  - q: payment webhook retry behavior
+    expect: answer
+    expected_page: teams/team-payments/payments-service/reference/api.md
+  - q: why do we use integer minor units for amounts
+    expect: answer
+    expected_page: teams/team-payments/payments-service/adr/0002-integer-minor-units.md
+  - q: how to run orders service locally
+    expect: answer
+    expected_page: teams/team-checkout/orders-service/how-to/run-locally.md
+  - q: what happens when a payment fails
+    expect: answer
+    expected_page: teams/team-checkout/orders-service/how-to/handle-a-failed-payment.md
+  - q: OrderPlaced event schema fields
+    expect: answer
+    expected_page: event-catalog.md
+  - q: who owns inventory-service
+    expect: answer
+    expected_page: teams/team-fulfillment/inventory-service/index.md
+  - q: webhook instead of polling decision
+    expect: answer
+    expected_page: teams/team-checkout/orders-service/adr/0002-webhook-instead-of-polling.md
+  - q: environment variables frontend
+    expect: answer
+    expected_page: teams/team-frontend/shop-frontend/getting-started/environment-variables.md
+  - q: how to write documentation in this org
+    expect: answer
+    expected_page: docs-guide.md
+  - q: kubernetes cluster upgrade policy
+    expect: abstain
+  - q: gdpr data retention rules for customer records
+    expect: abstain

@@ -1,7 +1,7 @@
 ---
 owner: team-platform
 system: demo-shop
-last_reviewed: 2026-07-10
+last_reviewed: 2026-07-11
 ---
 
 # Service explorer
@@ -16,7 +16,7 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     Team: [team-fulfillment](teams/team-fulfillment/index.md) · `#api` `#inventory` `#events`
 
-    [:material-file-document: Docs](teams/team-fulfillment/inventory-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-inventory-service)
+    [:material-file-document: Docs](teams/team-fulfillment/inventory-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-inventory-service) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-inventory-service) · [:material-chart-line: Monitoring](https://grafana.internal.demo-shop/d/inventory-service)
 
 - **[orders-service](teams/team-checkout/orders-service/index.md)** · `service`
 
@@ -24,7 +24,7 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     Team: [team-checkout](teams/team-checkout/index.md) · `#api` `#orders` `#events` `#webhooks`
 
-    [:material-file-document: Docs](teams/team-checkout/orders-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-orders-service)
+    [:material-file-document: Docs](teams/team-checkout/orders-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-orders-service) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-orders-service) · [:material-chart-line: Monitoring](https://grafana.internal.demo-shop/d/orders-service)
 
 - **[payments-service](teams/team-payments/payments-service/index.md)** · `service`
 
@@ -32,7 +32,7 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     Team: [team-payments](teams/team-payments/index.md) · `#api` `#payments` `#webhooks`
 
-    [:material-file-document: Docs](teams/team-payments/payments-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-payments-service)
+    [:material-file-document: Docs](teams/team-payments/payments-service/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-payments-service) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-payments-service) · [:material-chart-line: Monitoring](https://grafana.internal.demo-shop/d/payments-service)
 
 - **[shared-contracts](teams/team-platform/shared-contracts/index.md)** · `library`
 
@@ -40,7 +40,7 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     Team: [team-platform](teams/team-platform/index.md) · `#library` `#types` `#contracts` `#events`
 
-    [:material-file-document: Docs](teams/team-platform/shared-contracts/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shared-contracts)
+    [:material-file-document: Docs](teams/team-platform/shared-contracts/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shared-contracts) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-shared-contracts)
 
 - **[shop-frontend](teams/team-frontend/shop-frontend/index.md)** · `website`
 
@@ -48,6 +48,6 @@ Every component in demo-shop. Use the header search for full-text search across 
 
     Team: [team-frontend](teams/team-frontend/index.md) · `#react` `#web` `#checkout`
 
-    [:material-file-document: Docs](teams/team-frontend/shop-frontend/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shop-frontend)
+    [:material-file-document: Docs](teams/team-frontend/shop-frontend/index.md) · [:material-github: GitHub](https://github.com/elmersson/poc-shop-frontend) · [:material-percent: Code coverage](https://codecov.io/gh/elmersson/poc-shop-frontend) · [:material-chart-line: Monitoring](https://grafana.internal.demo-shop/d/shop-frontend) · [:material-google-analytics: Product analytics](https://posthog.internal.demo-shop/shop-frontend)
 
 </div>

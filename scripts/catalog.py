@@ -43,8 +43,15 @@ def load_components(source):
             "depends_on": [d.split(":", 1)[1] for d in spec.get("dependsOn", []) or []],
             "provides": spec.get("providesApis", []) or [],
             "consumes": spec.get("consumesApis", []) or [],
+            "links": data["metadata"].get("links", []) or [],
         }
     return comps
+
+def load_teams_meta(hub):
+    f = hub / "teams.yaml"
+    if f.is_file():
+        return (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("teams", {})
+    return {}
 
 def path_of(c):
     return "teams/" + c["owner"] + "/" + c["slug"] + "/index.md"
@@ -68,6 +75,7 @@ def main():
     source = Path(args.source).resolve()
     hub = Path(__file__).resolve().parent.parent
     comps = load_components(source)
+    teams_meta = load_teams_meta(hub)
 
     api_providers, api_consumers = {}, {}
     depended_by = {n: [] for n in comps}
@@ -108,6 +116,7 @@ def main():
     # ---- catalog.json (consumed by the docs MCP server) ----
     import json
     (hub / "docs" / "catalog.json").write_text(json.dumps({
+        "teams": teams_meta,
         "components": comps,
         "api_providers": api_providers,
         "api_consumers": api_consumers,
@@ -122,7 +131,9 @@ def main():
         page = ["---", "owner: " + team, "system: demo-shop",
                 "last_reviewed: " + date.today().isoformat(), "---", "",
                 "# " + team, "",
-                "Services and libraries owned by **" + team + "**.", "",
+                (teams_meta.get(team, {}).get("description") or "Services and libraries owned by **" + team + "**."), "",
+                "**Contact:** Slack [" + teams_meta.get(team, {}).get("slack", "n/a") + "](" + teams_meta.get(team, {}).get("slack_url", "#") + ")"
+                + " · CODEOWNERS `" + teams_meta.get(team, {}).get("codeowners", "n/a") + "`", "",
                 "| Component | Type | Description |", "|---|---|---|"]
         for name in sorted(members):
             c = comps[name]
@@ -161,6 +172,9 @@ def main():
         links = "    [:material-file-document: Docs](" + path_of(c) + ")"
         if args.github_owner:
             links += " · [:material-github: GitHub](https://github.com/" + args.github_owner + "/" + c["repo"] + ")"
+        for l in c["links"]:
+            icon = {"coverage": ":material-percent:", "dashboard": ":material-chart-line:", "analytics": ":material-google-analytics:"}.get(l.get("icon", ""), ":material-link:")
+            links += " · [" + icon + " " + l.get("title", "link") + "](" + l.get("url", "#") + ")"
         exp.append(links)
         exp.append("")
     exp.append("</div>")
@@ -180,6 +194,8 @@ def main():
             repo_ref = "[" + c["repo"] + "](https://github.com/" + args.github_owner + "/" + c["repo"] + ")"
         panel = ["", "## Relations", "",
                  "Owner: **[" + c["owner"] + "](../index.md)** · Type: " + c["type"] + " · Repo: " + repo_ref, ""]
+        if c["links"]:
+            panel.append("- Links: " + " · ".join("[" + l.get("title", "link") + "](" + l.get("url", "#") + ")" for l in c["links"]))
         if c["depends_on"]:
             panel.append("- Depends on: " + ", ".join(link_from_service(comps, d) for d in c["depends_on"]))
         if depended_by.get(name):
