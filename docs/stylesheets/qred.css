@@ -90,5 +90,5 @@
   border-radius: 999px;
 }
 
-/* code blocks: slightly rounded, calm */
-.md-typeset pre > code { border-radius: 10px; }
+/* swagger-ui-tag iframe: sensible floor while the height sync catches up */
+iframe.swagger-ui-iframe { min-height: 420px; }
