@@ -55,6 +55,8 @@ markdown_extensions:
       permalink: true
 extra_css:
   - stylesheets/qred.css
+extra_javascript:
+  - js/swagger-height-fix.js
 plugins:
   - search
   - tags
